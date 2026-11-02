@@ -1,0 +1,531 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="DCSDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ApplicationHistory">
+          <Key>
+            <PropertyRef Name="HistoryId" />
+          </Key>
+          <Property Name="HistoryId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ApplicationId" Type="int" Nullable="false" />
+          <Property Name="ActionByUserId" Type="int" />
+          <Property Name="DepartmentRoleId" Type="int" />
+          <Property Name="ActionType" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Notes" Type="nvarchar" MaxLength="1000" />
+          <Property Name="CreatedAt" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ClearanceApplications">
+          <Key>
+            <PropertyRef Name="ApplicationId" />
+          </Key>
+          <Property Name="ApplicationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="StudentUserId" Type="int" Nullable="false" />
+          <Property Name="SubmittedAt" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Status" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="CurrentStepRoleId" Type="int" />
+        </EntityType>
+        <EntityType Name="ClearanceApprovals">
+          <Key>
+            <PropertyRef Name="ApprovalId" />
+          </Key>
+          <Property Name="ApprovalId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ApplicationId" Type="int" Nullable="false" />
+          <Property Name="DepartmentRoleId" Type="int" Nullable="false" />
+          <Property Name="Decision" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="RejectionReason" Type="nvarchar" MaxLength="1000" />
+          <Property Name="ActionByUserId" Type="int" />
+          <Property Name="ActionAt" Type="datetime2" Precision="7" />
+        </EntityType>
+        <EntityType Name="Roles">
+          <Key>
+            <PropertyRef Name="RoleId" />
+          </Key>
+          <Property Name="RoleId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RoleName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="WorkflowOrder" Type="int" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Username" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="RegNo" Type="nvarchar" MaxLength="30" />
+          <Property Name="RoleId" Type="int" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+          <Property Name="CreatedAt" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Applications_CurrentRole">
+          <End Role="Roles" Type="Self.Roles" Multiplicity="0..1" />
+          <End Role="ClearanceApplications" Type="Self.ClearanceApplications" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleId" />
+            </Principal>
+            <Dependent Role="ClearanceApplications">
+              <PropertyRef Name="CurrentStepRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Applications_Student">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="ClearanceApplications" Type="Self.ClearanceApplications" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="ClearanceApplications">
+              <PropertyRef Name="StudentUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Approvals_ActionBy">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="ClearanceApprovals" Type="Self.ClearanceApprovals" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="ClearanceApprovals">
+              <PropertyRef Name="ActionByUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Approvals_Application">
+          <End Role="ClearanceApplications" Type="Self.ClearanceApplications" Multiplicity="1" />
+          <End Role="ClearanceApprovals" Type="Self.ClearanceApprovals" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClearanceApplications">
+              <PropertyRef Name="ApplicationId" />
+            </Principal>
+            <Dependent Role="ClearanceApprovals">
+              <PropertyRef Name="ApplicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Approvals_Role">
+          <End Role="Roles" Type="Self.Roles" Multiplicity="1" />
+          <End Role="ClearanceApprovals" Type="Self.ClearanceApprovals" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleId" />
+            </Principal>
+            <Dependent Role="ClearanceApprovals">
+              <PropertyRef Name="DepartmentRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_History_Application">
+          <End Role="ClearanceApplications" Type="Self.ClearanceApplications" Multiplicity="1" />
+          <End Role="ApplicationHistory" Type="Self.ApplicationHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClearanceApplications">
+              <PropertyRef Name="ApplicationId" />
+            </Principal>
+            <Dependent Role="ApplicationHistory">
+              <PropertyRef Name="ApplicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_History_Role">
+          <End Role="Roles" Type="Self.Roles" Multiplicity="0..1" />
+          <End Role="ApplicationHistory" Type="Self.ApplicationHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleId" />
+            </Principal>
+            <Dependent Role="ApplicationHistory">
+              <PropertyRef Name="DepartmentRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_History_User">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="ApplicationHistory" Type="Self.ApplicationHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="ApplicationHistory">
+              <PropertyRef Name="ActionByUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Users_Roles">
+          <End Role="Roles" Type="Self.Roles" Multiplicity="1" />
+          <End Role="Users" Type="Self.Users" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleId" />
+            </Principal>
+            <Dependent Role="Users">
+              <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="DCSDBModelStoreContainer">
+          <EntitySet Name="ApplicationHistory" EntityType="Self.ApplicationHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ClearanceApplications" EntityType="Self.ClearanceApplications" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ClearanceApprovals" EntityType="Self.ClearanceApprovals" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Applications_CurrentRole" Association="Self.FK_Applications_CurrentRole">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="ClearanceApplications" EntitySet="ClearanceApplications" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Applications_Student" Association="Self.FK_Applications_Student">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="ClearanceApplications" EntitySet="ClearanceApplications" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Approvals_ActionBy" Association="Self.FK_Approvals_ActionBy">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="ClearanceApprovals" EntitySet="ClearanceApprovals" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Approvals_Application" Association="Self.FK_Approvals_Application">
+            <End Role="ClearanceApplications" EntitySet="ClearanceApplications" />
+            <End Role="ClearanceApprovals" EntitySet="ClearanceApprovals" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Approvals_Role" Association="Self.FK_Approvals_Role">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="ClearanceApprovals" EntitySet="ClearanceApprovals" />
+          </AssociationSet>
+          <AssociationSet Name="FK_History_Application" Association="Self.FK_History_Application">
+            <End Role="ClearanceApplications" EntitySet="ClearanceApplications" />
+            <End Role="ApplicationHistory" EntitySet="ApplicationHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_History_Role" Association="Self.FK_History_Role">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="ApplicationHistory" EntitySet="ApplicationHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_History_User" Association="Self.FK_History_User">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="ApplicationHistory" EntitySet="ApplicationHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Users_Roles" Association="Self.FK_Users_Roles">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="Users" EntitySet="Users" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="DCSDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ApplicationHistory">
+          <Key>
+            <PropertyRef Name="HistoryId" />
+          </Key>
+          <Property Name="HistoryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ApplicationId" Type="Int32" Nullable="false" />
+          <Property Name="ActionByUserId" Type="Int32" />
+          <Property Name="DepartmentRoleId" Type="Int32" />
+          <Property Name="ActionType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Notes" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="ClearanceApplication" Relationship="Self.FK_History_Application" FromRole="ApplicationHistory" ToRole="ClearanceApplications" />
+          <NavigationProperty Name="Role" Relationship="Self.FK_History_Role" FromRole="ApplicationHistory" ToRole="Roles" />
+          <NavigationProperty Name="User" Relationship="Self.FK_History_User" FromRole="ApplicationHistory" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="ClearanceApplication">
+          <Key>
+            <PropertyRef Name="ApplicationId" />
+          </Key>
+          <Property Name="ApplicationId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StudentUserId" Type="Int32" Nullable="false" />
+          <Property Name="SubmittedAt" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CurrentStepRoleId" Type="Int32" />
+          <NavigationProperty Name="ApplicationHistories" Relationship="Self.FK_History_Application" FromRole="ClearanceApplications" ToRole="ApplicationHistory" />
+          <NavigationProperty Name="Role" Relationship="Self.FK_Applications_CurrentRole" FromRole="ClearanceApplications" ToRole="Roles" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Applications_Student" FromRole="ClearanceApplications" ToRole="Users" />
+          <NavigationProperty Name="ClearanceApprovals" Relationship="Self.FK_Approvals_Application" FromRole="ClearanceApplications" ToRole="ClearanceApprovals" />
+        </EntityType>
+        <EntityType Name="ClearanceApproval">
+          <Key>
+            <PropertyRef Name="ApprovalId" />
+          </Key>
+          <Property Name="ApprovalId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ApplicationId" Type="Int32" Nullable="false" />
+          <Property Name="DepartmentRoleId" Type="Int32" Nullable="false" />
+          <Property Name="Decision" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="RejectionReason" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="ActionByUserId" Type="Int32" />
+          <Property Name="ActionAt" Type="DateTime" Precision="7" />
+          <NavigationProperty Name="ClearanceApplication" Relationship="Self.FK_Approvals_Application" FromRole="ClearanceApprovals" ToRole="ClearanceApplications" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Approvals_ActionBy" FromRole="ClearanceApprovals" ToRole="Users" />
+          <NavigationProperty Name="Role" Relationship="Self.FK_Approvals_Role" FromRole="ClearanceApprovals" ToRole="Roles" />
+        </EntityType>
+        <EntityType Name="Role">
+          <Key>
+            <PropertyRef Name="RoleId" />
+          </Key>
+          <Property Name="RoleId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RoleName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="WorkflowOrder" Type="Int32" />
+          <NavigationProperty Name="ApplicationHistories" Relationship="Self.FK_History_Role" FromRole="Roles" ToRole="ApplicationHistory" />
+          <NavigationProperty Name="ClearanceApplications" Relationship="Self.FK_Applications_CurrentRole" FromRole="Roles" ToRole="ClearanceApplications" />
+          <NavigationProperty Name="ClearanceApprovals" Relationship="Self.FK_Approvals_Role" FromRole="Roles" ToRole="ClearanceApprovals" />
+          <NavigationProperty Name="Users" Relationship="Self.FK_Users_Roles" FromRole="Roles" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Username" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="FullName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="RegNo" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="RoleId" Type="Int32" Nullable="false" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="ApplicationHistories" Relationship="Self.FK_History_User" FromRole="Users" ToRole="ApplicationHistory" />
+          <NavigationProperty Name="ClearanceApplications" Relationship="Self.FK_Applications_Student" FromRole="Users" ToRole="ClearanceApplications" />
+          <NavigationProperty Name="ClearanceApprovals" Relationship="Self.FK_Approvals_ActionBy" FromRole="Users" ToRole="ClearanceApprovals" />
+          <NavigationProperty Name="Role" Relationship="Self.FK_Users_Roles" FromRole="Users" ToRole="Roles" />
+        </EntityType>
+        <Association Name="FK_History_Application">
+          <End Role="ClearanceApplications" Type="Self.ClearanceApplication" Multiplicity="1" />
+          <End Role="ApplicationHistory" Type="Self.ApplicationHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClearanceApplications">
+              <PropertyRef Name="ApplicationId" />
+            </Principal>
+            <Dependent Role="ApplicationHistory">
+              <PropertyRef Name="ApplicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_History_Role">
+          <End Role="Roles" Type="Self.Role" Multiplicity="0..1" />
+          <End Role="ApplicationHistory" Type="Self.ApplicationHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleId" />
+            </Principal>
+            <Dependent Role="ApplicationHistory">
+              <PropertyRef Name="DepartmentRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_History_User">
+          <End Role="Users" Type="Self.User" Multiplicity="0..1" />
+          <End Role="ApplicationHistory" Type="Self.ApplicationHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="ApplicationHistory">
+              <PropertyRef Name="ActionByUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Applications_CurrentRole">
+          <End Role="Roles" Type="Self.Role" Multiplicity="0..1" />
+          <End Role="ClearanceApplications" Type="Self.ClearanceApplication" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleId" />
+            </Principal>
+            <Dependent Role="ClearanceApplications">
+              <PropertyRef Name="CurrentStepRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Applications_Student">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="ClearanceApplications" Type="Self.ClearanceApplication" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="ClearanceApplications">
+              <PropertyRef Name="StudentUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Approvals_Application">
+          <End Role="ClearanceApplications" Type="Self.ClearanceApplication" Multiplicity="1" />
+          <End Role="ClearanceApprovals" Type="Self.ClearanceApproval" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClearanceApplications">
+              <PropertyRef Name="ApplicationId" />
+            </Principal>
+            <Dependent Role="ClearanceApprovals">
+              <PropertyRef Name="ApplicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Approvals_ActionBy">
+          <End Role="Users" Type="Self.User" Multiplicity="0..1" />
+          <End Role="ClearanceApprovals" Type="Self.ClearanceApproval" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="ClearanceApprovals">
+              <PropertyRef Name="ActionByUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Approvals_Role">
+          <End Role="Roles" Type="Self.Role" Multiplicity="1" />
+          <End Role="ClearanceApprovals" Type="Self.ClearanceApproval" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleId" />
+            </Principal>
+            <Dependent Role="ClearanceApprovals">
+              <PropertyRef Name="DepartmentRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Users_Roles">
+          <End Role="Roles" Type="Self.Role" Multiplicity="1" />
+          <End Role="Users" Type="Self.User" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleId" />
+            </Principal>
+            <Dependent Role="Users">
+              <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="DCSDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ApplicationHistories" EntityType="Self.ApplicationHistory" />
+          <EntitySet Name="ClearanceApplications" EntityType="Self.ClearanceApplication" />
+          <EntitySet Name="ClearanceApprovals" EntityType="Self.ClearanceApproval" />
+          <EntitySet Name="Roles" EntityType="Self.Role" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK_History_Application" Association="Self.FK_History_Application">
+            <End Role="ClearanceApplications" EntitySet="ClearanceApplications" />
+            <End Role="ApplicationHistory" EntitySet="ApplicationHistories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_History_Role" Association="Self.FK_History_Role">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="ApplicationHistory" EntitySet="ApplicationHistories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_History_User" Association="Self.FK_History_User">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="ApplicationHistory" EntitySet="ApplicationHistories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Applications_CurrentRole" Association="Self.FK_Applications_CurrentRole">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="ClearanceApplications" EntitySet="ClearanceApplications" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Applications_Student" Association="Self.FK_Applications_Student">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="ClearanceApplications" EntitySet="ClearanceApplications" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Approvals_Application" Association="Self.FK_Approvals_Application">
+            <End Role="ClearanceApplications" EntitySet="ClearanceApplications" />
+            <End Role="ClearanceApprovals" EntitySet="ClearanceApprovals" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Approvals_ActionBy" Association="Self.FK_Approvals_ActionBy">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="ClearanceApprovals" EntitySet="ClearanceApprovals" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Approvals_Role" Association="Self.FK_Approvals_Role">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="ClearanceApprovals" EntitySet="ClearanceApprovals" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Users_Roles" Association="Self.FK_Users_Roles">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="Users" EntitySet="Users" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="DCSDBModelStoreContainer" CdmEntityContainer="DCSDBEntities">
+          <EntitySetMapping Name="ApplicationHistories">
+            <EntityTypeMapping TypeName="DCSDBModel.ApplicationHistory">
+              <MappingFragment StoreEntitySet="ApplicationHistory">
+                <ScalarProperty Name="HistoryId" ColumnName="HistoryId" />
+                <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
+                <ScalarProperty Name="ActionByUserId" ColumnName="ActionByUserId" />
+                <ScalarProperty Name="DepartmentRoleId" ColumnName="DepartmentRoleId" />
+                <ScalarProperty Name="ActionType" ColumnName="ActionType" />
+                <ScalarProperty Name="Notes" ColumnName="Notes" />
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ClearanceApplications">
+            <EntityTypeMapping TypeName="DCSDBModel.ClearanceApplication">
+              <MappingFragment StoreEntitySet="ClearanceApplications">
+                <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
+                <ScalarProperty Name="StudentUserId" ColumnName="StudentUserId" />
+                <ScalarProperty Name="SubmittedAt" ColumnName="SubmittedAt" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="CurrentStepRoleId" ColumnName="CurrentStepRoleId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ClearanceApprovals">
+            <EntityTypeMapping TypeName="DCSDBModel.ClearanceApproval">
+              <MappingFragment StoreEntitySet="ClearanceApprovals">
+                <ScalarProperty Name="ApprovalId" ColumnName="ApprovalId" />
+                <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
+                <ScalarProperty Name="DepartmentRoleId" ColumnName="DepartmentRoleId" />
+                <ScalarProperty Name="Decision" ColumnName="Decision" />
+                <ScalarProperty Name="RejectionReason" ColumnName="RejectionReason" />
+                <ScalarProperty Name="ActionByUserId" ColumnName="ActionByUserId" />
+                <ScalarProperty Name="ActionAt" ColumnName="ActionAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Roles">
+            <EntityTypeMapping TypeName="DCSDBModel.Role">
+              <MappingFragment StoreEntitySet="Roles">
+                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+                <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+                <ScalarProperty Name="WorkflowOrder" ColumnName="WorkflowOrder" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="DCSDBModel.User">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="RegNo" ColumnName="RegNo" />
+                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

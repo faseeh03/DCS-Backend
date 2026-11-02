@@ -1,0 +1,380 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="BIITDBNewModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Accgpa">
+          <Key>
+            <PropertyRef Name="REG_NO" />
+            <PropertyRef Name="SEMESTER_NO" />
+            <PropertyRef Name="SECTION" />
+          </Key>
+          <Property Name="REG_NO" Type="varchar" MaxLength="14" Nullable="false" />
+          <Property Name="SEMESTER_NO" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="CHAR_WORK" Type="char" MaxLength="1" />
+          <Property Name="SYN_INT" Type="char" MaxLength="1" />
+          <Property Name="Q_PREV" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="Q_CURR_SEM" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="Q_TOTAL" Type="decimal" Precision="6" Scale="2" />
+          <Property Name="CR_PREV" Type="decimal" Precision="6" Scale="2" />
+          <Property Name="CR_CURR_SEM" Type="decimal" Precision="6" Scale="2" />
+          <Property Name="CR_TOTAL" Type="decimal" Precision="6" Scale="2" />
+          <Property Name="CGPA" Type="decimal" Precision="6" Scale="2" />
+          <Property Name="USER_ID" Type="varchar" MaxLength="10" />
+          <Property Name="SECTION" Type="char" MaxLength="1" Nullable="false" />
+          <Property Name="SEM_STATUS" Type="char" MaxLength="10" />
+          <Property Name="SemC" Type="int" />
+          <Property Name="dropCount" Type="int" />
+        </EntityType>
+        <EntityType Name="Crsdtl">
+          <Key>
+            <PropertyRef Name="Course_no" />
+            <PropertyRef Name="REG_NO" />
+            <PropertyRef Name="SEMESTER_NO" />
+          </Key>
+          <Property Name="Course_no" Type="varchar" MaxLength="9" Nullable="false" />
+          <Property Name="ATTEMPT_NO" Type="nvarchar" MaxLength="1" Nullable="false" />
+          <Property Name="REG_NO" Type="varchar" MaxLength="14" Nullable="false" />
+          <Property Name="Emp_no" Type="char" MaxLength="7" Nullable="false" />
+          <Property Name="SEMESTER_NO" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="SECTION" Type="char" MaxLength="1" Nullable="false" />
+          <Property Name="Final_score" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="Midterm_score" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="Assi_score" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="Prac_score" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="Grade" Type="char" MaxLength="12" />
+          <Property Name="Q_points" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="DISCIPLINE" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="SOS" Type="char" MaxLength="8" Nullable="false" />
+          <Property Name="pGrade" Type="char" MaxLength="1" />
+          <Property Name="Mid_att" Type="char" MaxLength="1" />
+          <Property Name="Fin_att" Type="char" MaxLength="1" />
+          <Property Name="CrsSemNo" Type="int" />
+          <Property Name="DT" Type="datetime" />
+        </EntityType>
+        <EntityType Name="STMTR">
+          <Key>
+            <PropertyRef Name="Reg_No" />
+          </Key>
+          <Property Name="Reg_No" Type="varchar" MaxLength="14" Nullable="false" />
+          <Property Name="App_no" Type="char" MaxLength="12" Nullable="false" />
+          <Property Name="St_firstname" Type="varchar" MaxLength="25" />
+          <Property Name="St_lastname" Type="varchar" MaxLength="25" />
+          <Property Name="St_middlename" Type="varchar" MaxLength="25" />
+          <Property Name="Father_name" Type="varchar" MaxLength="50" />
+          <Property Name="St_email" Type="varchar" MaxLength="30" />
+          <Property Name="Sex" Type="char" MaxLength="1" />
+          <Property Name="Uaar_reg_no" Type="char" MaxLength="12" />
+          <Property Name="Marital_status" Type="char" MaxLength="1" />
+          <Property Name="Birth_date" Type="datetime" Nullable="false" />
+          <Property Name="Nic_no" Type="char" MaxLength="20" />
+          <Property Name="Ad_status" Type="varchar" MaxLength="20" />
+          <Property Name="Sess" Type="char" MaxLength="1" />
+          <Property Name="Pref_1" Type="varchar" MaxLength="12" />
+          <Property Name="Pref_2" Type="varchar" MaxLength="12" />
+          <Property Name="Adm_date" Type="datetime" />
+          <Property Name="Semester_no" Type="char" MaxLength="6" />
+          <Property Name="Remarks" Type="varchar" MaxLength="40" />
+          <Property Name="St_status" Type="char" MaxLength="9" />
+          <Property Name="USER_ID" Type="varchar" MaxLength="50" />
+          <Property Name="Acc_status" Type="char" MaxLength="9" />
+          <Property Name="St_assets" Type="nvarchar" MaxLength="10" />
+          <Property Name="Whom_STATUS" Type="varchar" MaxLength="20" />
+          <Property Name="Fin_status" Type="varchar" MaxLength="20" />
+          <Property Name="Final_course" Type="varchar" MaxLength="12" />
+          <Property Name="Enrl_status" Type="char" MaxLength="12" />
+          <Property Name="DOMICILE" Type="varchar" MaxLength="30" />
+          <Property Name="Degree_Received" Type="char" MaxLength="3" />
+          <Property Name="Deg_No" Type="char" MaxLength="7" />
+          <Property Name="Year" Type="char" MaxLength="4" />
+          <Property Name="SOS" Type="char" MaxLength="10" />
+          <Property Name="Section" Type="char" MaxLength="1" />
+        </EntityType>
+        <Association Name="fk_reg">
+          <End Role="STMTR" Type="Self.STMTR" Multiplicity="1" />
+          <End Role="Crsdtl" Type="Self.Crsdtl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="STMTR">
+              <PropertyRef Name="Reg_No" />
+            </Principal>
+            <Dependent Role="Crsdtl">
+              <PropertyRef Name="REG_NO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk1_reg_no">
+          <End Role="STMTR" Type="Self.STMTR" Multiplicity="1" />
+          <End Role="Accgpa" Type="Self.Accgpa" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="STMTR">
+              <PropertyRef Name="Reg_No" />
+            </Principal>
+            <Dependent Role="Accgpa">
+              <PropertyRef Name="REG_NO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="BIITDBNewModelStoreContainer">
+          <EntitySet Name="Accgpa" EntityType="Self.Accgpa" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Crsdtl" EntityType="Self.Crsdtl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="STMTR" EntityType="Self.STMTR" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="fk_reg" Association="Self.fk_reg">
+            <End Role="STMTR" EntitySet="STMTR" />
+            <End Role="Crsdtl" EntitySet="Crsdtl" />
+          </AssociationSet>
+          <AssociationSet Name="fk1_reg_no" Association="Self.fk1_reg_no">
+            <End Role="STMTR" EntitySet="STMTR" />
+            <End Role="Accgpa" EntitySet="Accgpa" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="BIITDBNewModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Accgpa">
+          <Key>
+            <PropertyRef Name="REG_NO" />
+            <PropertyRef Name="SEMESTER_NO" />
+            <PropertyRef Name="SECTION" />
+          </Key>
+          <Property Name="REG_NO" Type="String" MaxLength="14" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="SEMESTER_NO" Type="String" MaxLength="12" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CHAR_WORK" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="SYN_INT" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="Q_PREV" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="Q_CURR_SEM" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="Q_TOTAL" Type="Decimal" Precision="6" Scale="2" />
+          <Property Name="CR_PREV" Type="Decimal" Precision="6" Scale="2" />
+          <Property Name="CR_CURR_SEM" Type="Decimal" Precision="6" Scale="2" />
+          <Property Name="CR_TOTAL" Type="Decimal" Precision="6" Scale="2" />
+          <Property Name="CGPA" Type="Decimal" Precision="6" Scale="2" />
+          <Property Name="USER_ID" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="SECTION" Type="String" MaxLength="1" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="SEM_STATUS" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="SemC" Type="Int32" />
+          <Property Name="dropCount" Type="Int32" />
+          <NavigationProperty Name="STMTR" Relationship="Self.fk1_reg_no" FromRole="Accgpa" ToRole="STMTR" />
+        </EntityType>
+        <EntityType Name="Crsdtl">
+          <Key>
+            <PropertyRef Name="Course_no" />
+            <PropertyRef Name="REG_NO" />
+            <PropertyRef Name="SEMESTER_NO" />
+          </Key>
+          <Property Name="Course_no" Type="String" MaxLength="9" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ATTEMPT_NO" Type="String" MaxLength="1" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="REG_NO" Type="String" MaxLength="14" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Emp_no" Type="String" MaxLength="7" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="SEMESTER_NO" Type="String" MaxLength="12" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="SECTION" Type="String" MaxLength="1" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="Final_score" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="Midterm_score" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="Assi_score" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="Prac_score" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="Grade" Type="String" MaxLength="12" FixedLength="true" Unicode="false" />
+          <Property Name="Q_points" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="DISCIPLINE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="SOS" Type="String" MaxLength="8" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="pGrade" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="Mid_att" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="Fin_att" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="CrsSemNo" Type="Int32" />
+          <Property Name="DT" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="STMTR" Relationship="Self.fk_reg" FromRole="Crsdtl" ToRole="STMTR" />
+        </EntityType>
+        <EntityType Name="STMTR">
+          <Key>
+            <PropertyRef Name="Reg_No" />
+          </Key>
+          <Property Name="Reg_No" Type="String" MaxLength="14" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="App_no" Type="String" MaxLength="12" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="St_firstname" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="St_lastname" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="St_middlename" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="Father_name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="St_email" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Sex" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="Uaar_reg_no" Type="String" MaxLength="12" FixedLength="true" Unicode="false" />
+          <Property Name="Marital_status" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="Birth_date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Nic_no" Type="String" MaxLength="20" FixedLength="true" Unicode="false" />
+          <Property Name="Ad_status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Sess" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="Pref_1" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="Pref_2" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="Adm_date" Type="DateTime" Precision="3" />
+          <Property Name="Semester_no" Type="String" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="St_status" Type="String" MaxLength="9" FixedLength="true" Unicode="false" />
+          <Property Name="USER_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Acc_status" Type="String" MaxLength="9" FixedLength="true" Unicode="false" />
+          <Property Name="St_assets" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="Whom_STATUS" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Fin_status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Final_course" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="Enrl_status" Type="String" MaxLength="12" FixedLength="true" Unicode="false" />
+          <Property Name="DOMICILE" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Degree_Received" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <Property Name="Deg_No" Type="String" MaxLength="7" FixedLength="true" Unicode="false" />
+          <Property Name="Year" Type="String" MaxLength="4" FixedLength="true" Unicode="false" />
+          <Property Name="SOS" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="Section" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <NavigationProperty Name="Accgpas" Relationship="Self.fk1_reg_no" FromRole="STMTR" ToRole="Accgpa" />
+          <NavigationProperty Name="Crsdtls" Relationship="Self.fk_reg" FromRole="STMTR" ToRole="Crsdtl" />
+        </EntityType>
+        <Association Name="fk1_reg_no">
+          <End Role="STMTR" Type="Self.STMTR" Multiplicity="1" />
+          <End Role="Accgpa" Type="Self.Accgpa" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="STMTR">
+              <PropertyRef Name="Reg_No" />
+            </Principal>
+            <Dependent Role="Accgpa">
+              <PropertyRef Name="REG_NO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_reg">
+          <End Role="STMTR" Type="Self.STMTR" Multiplicity="1" />
+          <End Role="Crsdtl" Type="Self.Crsdtl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="STMTR">
+              <PropertyRef Name="Reg_No" />
+            </Principal>
+            <Dependent Role="Crsdtl">
+              <PropertyRef Name="REG_NO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="BIITDBNewEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Accgpas" EntityType="Self.Accgpa" />
+          <EntitySet Name="Crsdtls" EntityType="Self.Crsdtl" />
+          <EntitySet Name="STMTRs" EntityType="Self.STMTR" />
+          <AssociationSet Name="fk1_reg_no" Association="Self.fk1_reg_no">
+            <End Role="STMTR" EntitySet="STMTRs" />
+            <End Role="Accgpa" EntitySet="Accgpas" />
+          </AssociationSet>
+          <AssociationSet Name="fk_reg" Association="Self.fk_reg">
+            <End Role="STMTR" EntitySet="STMTRs" />
+            <End Role="Crsdtl" EntitySet="Crsdtls" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="BIITDBNewModelStoreContainer" CdmEntityContainer="BIITDBNewEntities">
+          <EntitySetMapping Name="Accgpas">
+            <EntityTypeMapping TypeName="BIITDBNewModel.Accgpa">
+              <MappingFragment StoreEntitySet="Accgpa">
+                <ScalarProperty Name="REG_NO" ColumnName="REG_NO" />
+                <ScalarProperty Name="SEMESTER_NO" ColumnName="SEMESTER_NO" />
+                <ScalarProperty Name="CHAR_WORK" ColumnName="CHAR_WORK" />
+                <ScalarProperty Name="SYN_INT" ColumnName="SYN_INT" />
+                <ScalarProperty Name="Q_PREV" ColumnName="Q_PREV" />
+                <ScalarProperty Name="Q_CURR_SEM" ColumnName="Q_CURR_SEM" />
+                <ScalarProperty Name="Q_TOTAL" ColumnName="Q_TOTAL" />
+                <ScalarProperty Name="CR_PREV" ColumnName="CR_PREV" />
+                <ScalarProperty Name="CR_CURR_SEM" ColumnName="CR_CURR_SEM" />
+                <ScalarProperty Name="CR_TOTAL" ColumnName="CR_TOTAL" />
+                <ScalarProperty Name="CGPA" ColumnName="CGPA" />
+                <ScalarProperty Name="USER_ID" ColumnName="USER_ID" />
+                <ScalarProperty Name="SECTION" ColumnName="SECTION" />
+                <ScalarProperty Name="SEM_STATUS" ColumnName="SEM_STATUS" />
+                <ScalarProperty Name="SemC" ColumnName="SemC" />
+                <ScalarProperty Name="dropCount" ColumnName="dropCount" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Crsdtls">
+            <EntityTypeMapping TypeName="BIITDBNewModel.Crsdtl">
+              <MappingFragment StoreEntitySet="Crsdtl">
+                <ScalarProperty Name="Course_no" ColumnName="Course_no" />
+                <ScalarProperty Name="ATTEMPT_NO" ColumnName="ATTEMPT_NO" />
+                <ScalarProperty Name="REG_NO" ColumnName="REG_NO" />
+                <ScalarProperty Name="Emp_no" ColumnName="Emp_no" />
+                <ScalarProperty Name="SEMESTER_NO" ColumnName="SEMESTER_NO" />
+                <ScalarProperty Name="SECTION" ColumnName="SECTION" />
+                <ScalarProperty Name="Final_score" ColumnName="Final_score" />
+                <ScalarProperty Name="Midterm_score" ColumnName="Midterm_score" />
+                <ScalarProperty Name="Assi_score" ColumnName="Assi_score" />
+                <ScalarProperty Name="Prac_score" ColumnName="Prac_score" />
+                <ScalarProperty Name="Grade" ColumnName="Grade" />
+                <ScalarProperty Name="Q_points" ColumnName="Q_points" />
+                <ScalarProperty Name="DISCIPLINE" ColumnName="DISCIPLINE" />
+                <ScalarProperty Name="SOS" ColumnName="SOS" />
+                <ScalarProperty Name="pGrade" ColumnName="pGrade" />
+                <ScalarProperty Name="Mid_att" ColumnName="Mid_att" />
+                <ScalarProperty Name="Fin_att" ColumnName="Fin_att" />
+                <ScalarProperty Name="CrsSemNo" ColumnName="CrsSemNo" />
+                <ScalarProperty Name="DT" ColumnName="DT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="STMTRs">
+            <EntityTypeMapping TypeName="BIITDBNewModel.STMTR">
+              <MappingFragment StoreEntitySet="STMTR">
+                <ScalarProperty Name="Reg_No" ColumnName="Reg_No" />
+                <ScalarProperty Name="App_no" ColumnName="App_no" />
+                <ScalarProperty Name="St_firstname" ColumnName="St_firstname" />
+                <ScalarProperty Name="St_lastname" ColumnName="St_lastname" />
+                <ScalarProperty Name="St_middlename" ColumnName="St_middlename" />
+                <ScalarProperty Name="Father_name" ColumnName="Father_name" />
+                <ScalarProperty Name="St_email" ColumnName="St_email" />
+                <ScalarProperty Name="Sex" ColumnName="Sex" />
+                <ScalarProperty Name="Uaar_reg_no" ColumnName="Uaar_reg_no" />
+                <ScalarProperty Name="Marital_status" ColumnName="Marital_status" />
+                <ScalarProperty Name="Birth_date" ColumnName="Birth_date" />
+                <ScalarProperty Name="Nic_no" ColumnName="Nic_no" />
+                <ScalarProperty Name="Ad_status" ColumnName="Ad_status" />
+                <ScalarProperty Name="Sess" ColumnName="Sess" />
+                <ScalarProperty Name="Pref_1" ColumnName="Pref_1" />
+                <ScalarProperty Name="Pref_2" ColumnName="Pref_2" />
+                <ScalarProperty Name="Adm_date" ColumnName="Adm_date" />
+                <ScalarProperty Name="Semester_no" ColumnName="Semester_no" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="St_status" ColumnName="St_status" />
+                <ScalarProperty Name="USER_ID" ColumnName="USER_ID" />
+                <ScalarProperty Name="Acc_status" ColumnName="Acc_status" />
+                <ScalarProperty Name="St_assets" ColumnName="St_assets" />
+                <ScalarProperty Name="Whom_STATUS" ColumnName="Whom_STATUS" />
+                <ScalarProperty Name="Fin_status" ColumnName="Fin_status" />
+                <ScalarProperty Name="Final_course" ColumnName="Final_course" />
+                <ScalarProperty Name="Enrl_status" ColumnName="Enrl_status" />
+                <ScalarProperty Name="DOMICILE" ColumnName="DOMICILE" />
+                <ScalarProperty Name="Degree_Received" ColumnName="Degree_Received" />
+                <ScalarProperty Name="Deg_No" ColumnName="Deg_No" />
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="SOS" ColumnName="SOS" />
+                <ScalarProperty Name="Section" ColumnName="Section" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

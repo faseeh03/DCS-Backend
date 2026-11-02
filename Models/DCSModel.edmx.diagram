@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="f400cf5bb741470e979ce091bd02648f" Name="Diagram1" ZoomLevel="81">
+        <EntityTypeShape EntityType="DCSDBModel.ApplicationHistory" Width="1.5" PointX="5.25" PointY="9.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DCSDBModel.ClearanceApplication" Width="1.5" PointX="8.25" PointY="9.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DCSDBModel.ClearanceApproval" Width="1.5" PointX="10.5" PointY="9.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DCSDBModel.Role" Width="1.5" PointX="0.75" PointY="5.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DCSDBModel.User" Width="1.5" PointX="3" PointY="12.25" IsExpanded="true" />
+        <AssociationConnector Association="DCSDBModel.FK_History_Application" ManuallyRouted="false" />
+        <AssociationConnector Association="DCSDBModel.FK_History_Role" ManuallyRouted="false" />
+        <AssociationConnector Association="DCSDBModel.FK_History_User" ManuallyRouted="false" />
+        <AssociationConnector Association="DCSDBModel.FK_Applications_CurrentRole" ManuallyRouted="false" />
+        <AssociationConnector Association="DCSDBModel.FK_Applications_Student" ManuallyRouted="false" />
+        <AssociationConnector Association="DCSDBModel.FK_Approvals_Application" ManuallyRouted="false" />
+        <AssociationConnector Association="DCSDBModel.FK_Approvals_ActionBy" ManuallyRouted="false" />
+        <AssociationConnector Association="DCSDBModel.FK_Approvals_Role" ManuallyRouted="false" />
+        <AssociationConnector Association="DCSDBModel.FK_Users_Roles" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
