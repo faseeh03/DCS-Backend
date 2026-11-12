@@ -34,6 +34,7 @@ namespace DCSBackend.Models
         public Nullable<int> CrsSemNo { get; set; }
         public Nullable<System.DateTime> DT { get; set; }
     
+        public virtual CRSMTR CRSMTR { get; set; }
         public virtual STMTR STMTR { get; set; }
     }
 }

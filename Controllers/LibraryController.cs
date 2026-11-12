@@ -12,7 +12,7 @@ namespace DCSBackend.Controllers
     [RoutePrefix("api/library")]
     public class LibraryController : BaseController
     {
-        private const string RoleName = "Library";
+        private const string RoleName = "Librarian";
 
         // GET api/library/pending/4
         [HttpGet, Route("pending/{userId:int}")]

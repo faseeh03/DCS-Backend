@@ -5,10 +5,7 @@ using System.Web.Http;
 
 namespace DCSBackend.Controllers
 {
-    /// <summary>
-    /// Cafeteria: sees applications waiting for it, then approves or rejects (reason required).
-    /// The workflow code is in BaseController. To add a Cafeteria-only endpoint, add a method here.
-    /// </summary>
+    
     [RoutePrefix("api/cafeteria")]
     public class CafeteriaController : BaseController
     {

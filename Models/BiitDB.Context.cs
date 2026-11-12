@@ -26,7 +26,18 @@ namespace DCSBackend.Models
         }
     
         public virtual DbSet<Accgpa> Accgpas { get; set; }
+        public virtual DbSet<Clearance_Application> Clearance_Application { get; set; }
+        public virtual DbSet<Clearance_Approval_History> Clearance_Approval_History { get; set; }
+        public virtual DbSet<Clearance_Approvals> Clearance_Approvals { get; set; }
+        public virtual DbSet<course> courses { get; set; }
         public virtual DbSet<Crsdtl> Crsdtls { get; set; }
+        public virtual DbSet<crsdtl_enrl> crsdtl_enrl { get; set; }
+        public virtual DbSet<CRSMTR> CRSMTRs { get; set; }
         public virtual DbSet<STMTR> STMTRs { get; set; }
+        public virtual DbSet<tbl_User_Roles> tbl_User_Roles { get; set; }
+        public virtual DbSet<UserLogin> UserLogins { get; set; }
+        public virtual DbSet<CrsEnrF> CrsEnrFs { get; set; }
+        public virtual DbSet<CrsEnrp> CrsEnrps { get; set; }
+        public virtual DbSet<CrsFail> CrsFails { get; set; }
     }
 }

@@ -22,6 +22,7 @@ namespace DCSBackend.Model
         public int NotPassedCount { get; set; }
         public bool CoursesOk { get; set; }
         public bool IsEligible { get; set; }
+        public int? LatestSemester { get; set; }
         public List<string> Problems { get; set; } = new List<string>();
         public List<CourseResult> Courses { get; set; } = new List<CourseResult>();
     }

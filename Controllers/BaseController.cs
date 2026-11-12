@@ -1,7 +1,7 @@
-﻿using DCSBackend.Model;
-using DCSBackend.Models;  
+﻿
+using DCSBackend.Model;
+using DCSBackend.Models;
 using System;
-using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -9,122 +9,219 @@ using System.Web.Http;
 
 namespace DCSBackend.Controllers
 {
-    /// <summary>
-    /// Every controller inherits this. It gives you:
-    ///   db, uniDb              -> DCSDB and BIITDBNew (separate EF contexts)
-    ///   Success/Fail/...       -> responses (they use Request.CreateResponse inside)
-    ///   HasRole()         -> is this userId an active user with this role?
-    ///   PendingList / ApproveStep / RejectStep
-    ///                          -> the shared workflow used by all department controllers
-    /// </summary>
     public abstract class BaseController : ApiController
     {
-        protected DCSDBEntities db = new DCSDBEntities();
-        protected BIITDBNewEntities uniDb = new BIITDBNewEntities();
+       
+        protected BIITDBNewEntities db = new BIITDBNewEntities();
 
         
-        // Responses
-        
+
         protected HttpResponseMessage Success(object data)
         {
-            return Request.CreateResponse(HttpStatusCode.OK, data);
+            return Request.CreateResponse(
+                HttpStatusCode.OK, data);
         }
 
         protected HttpResponseMessage Fail(string message)
         {
-            return Request.CreateResponse(HttpStatusCode.BadRequest, new { message = message });
+            return Request.CreateResponse(
+                HttpStatusCode.BadRequest,
+                new { message = message });
         }
 
         protected HttpResponseMessage NotAllowed()
         {
-            return Request.CreateResponse(HttpStatusCode.Forbidden,
-                new { message = "You are not allowed to do this." });
+            return Request.CreateResponse(
+                HttpStatusCode.Forbidden,
+                new
+                {
+                    message = "You are not allowed to do this."
+                });
         }
 
         protected HttpResponseMessage NotFoundMessage(string message)
         {
-            return Request.CreateResponse(HttpStatusCode.NotFound, new { message = message });
+            return Request.CreateResponse(
+                HttpStatusCode.NotFound,
+                new { message = message });
         }
 
         protected HttpResponseMessage ServerError(Exception ex)
         {
-            return Request.CreateResponse(HttpStatusCode.InternalServerError, new { message = ex.Message });
+            return Request.CreateResponse(
+                HttpStatusCode.InternalServerError,
+                new { message = ex.Message });
         }
 
-        
-        // Small helpers
-        
+        // -----------------------------------------
+        // COMMON HELPERS
+        // -----------------------------------------
 
-        // role is checked in the DATABASE (the frontend only sends the userId)
+        // Check user role from database
         protected bool HasRole(int userId, string roleName)
         {
-            return db.Users.Any(u => u.UserId == userId
-                                             && u.IsActive
-                                             && u.Role.RoleName == roleName);
+            return db.UserLogins.Any(u =>
+                u.LoginId == userId &&
+                u.IsActive &&
+                u.tbl_User_Roles.role_name == roleName
+            );
         }
 
-        protected static string JoinName(string first, string middle, string last)
+        // Join first, middle and last name
+        protected static string JoinName(
+            string first,
+            string middle,
+            string last)
         {
             var parts = new[] { first, middle, last }
                 .Where(p => !string.IsNullOrWhiteSpace(p))
                 .Select(p => p.Trim());
+
             return string.Join(" ", parts);
         }
 
-        
-        // Department workflow (same for every department)
-        
+        // -----------------------------------------
+        // UPDATE OVERALL APPLICATION STATUS
+        // -----------------------------------------
 
-        // Applications that are waiting for this department right now
-        protected HttpResponseMessage PendingList(int userId, string roleName)
+        protected void UpdateApplicationStatus(
+            Clearance_Application application)
+        {
+            var approvals = db.Clearance_Approvals
+                .Where(p =>
+                    p.application_id == application.application_id)
+                .ToList();
+
+            // All six departments must have approval records
+            if (approvals.Count != 6)
+            {
+                application.application_status = "Pending";
+                return;
+            }
+
+            // All six departments approved
+            if (approvals.All(p =>
+                p.approval_status == "Approved"))
+            {
+                application.application_status = "Completed";
+                return;
+            }
+
+            // All departments have decided, but at least one rejected
+            bool allDecided = approvals.All(p =>
+                p.approval_status == "Approved" ||
+                p.approval_status == "Rejected");
+
+            bool anyRejected = approvals.Any(p =>
+                p.approval_status == "Rejected");
+
+            if (allDecided && anyRejected)
+            {
+                application.application_status = "Rejected";
+                return;
+            }
+
+            // Some departments are still pending
+            application.application_status = "Pending";
+        }
+
+        // -----------------------------------------
+        // PENDING APPLICATIONS
+        // -----------------------------------------
+
+        // GET pending applications for a department
+        protected HttpResponseMessage PendingList(
+            int userId,
+            string roleName)
         {
             try
             {
                 if (!HasRole(userId, roleName))
                     return NotAllowed();
 
-                // a.Role = the department the application is currently with
-                var apps = db.ClearanceApplications
-                    .Where(a => a.Status == "InProgress" && a.Role.RoleName == roleName)
-                    .OrderBy(a => a.SubmittedAt)
-                    .Select(a => new
-                    {
-                        a.ApplicationId,
-                        a.SubmittedAt,
-                        RegNo = a.User.RegNo,
-                        StudentName = a.User.FullName
-                    })
-                    .ToList();
+                var role = db.tbl_User_Roles
+                    .FirstOrDefault(r =>
+                        r.role_name == roleName);
 
-                var ids = apps.Select(a => a.ApplicationId).ToList();
+                if (role == null)
+                    return NotFoundMessage(
+                        "Department role not found.");
 
-                var steps = db.ClearanceApprovals
-                    .Where(p => ids.Contains(p.ApplicationId))
+                // Get applications where this department
+                // has its own Pending approval.
+                //
+                // Other departments' Rejected decisions
+                // do not block this department.
+
+                var apps = db.Clearance_Approvals
+                    .Where(p =>
+                        p.role_id == role.role_id &&
+                        p.approval_status == "Pending" &&
+                        p.Clearance_Application.application_status == "Pending")
                     .Select(p => new
                     {
-                        p.ApplicationId,
-                        Department = p.Role.RoleName,
-                        p.Decision,
-                        p.Role.WorkflowOrder
+                        p.application_id,
+                        p.Clearance_Application.application_date,
+                        p.Clearance_Application.UserLogin.Reg_no,
+                        p.Clearance_Application.UserLogin.FirstName,
+                        p.Clearance_Application.UserLogin.LastName
                     })
+                    .OrderBy(a => a.application_date)
                     .ToList();
 
-                var result = apps.Select(a => new PendingApplicationResponse
-                {
-                    ApplicationId = a.ApplicationId,
-                    RegNo = a.RegNo,
-                    StudentName = a.StudentName,
-                    SubmittedAt = a.SubmittedAt,
-                    Steps = steps
-                        .Where(s => s.ApplicationId == a.ApplicationId)
-                        .OrderBy(s => s.WorkflowOrder)
-                        .Select(s => new StepStatusResponse
+                var applicationIds = apps
+                    .Select(a => a.application_id)
+                    .Distinct()
+                    .ToList();
+
+                // Get all department decisions
+                var steps = db.Clearance_Approvals
+                    .Where(p =>
+                        applicationIds.Contains(p.application_id))
+                    .Select(p => new
+                    {
+                        p.application_id,
+                        Department = p.tbl_User_Roles.role_name,
+                        Decision = p.approval_status,
+                        p.rejection_reason,
+                        p.action_date,
+                        p.role_id
+                    })
+                    .OrderBy(p => p.role_id)
+                    .ToList();
+
+                var result = apps
+                    .GroupBy(a => a.application_id)
+                    .Select(group =>
+                    {
+                        var a = group.First();
+
+                        return new PendingApplicationResponse
                         {
-                            Department = s.Department,
-                            Decision = s.Decision
-                        })
-                        .ToList()
-                }).ToList();
+                            ApplicationId = a.application_id,
+                            RegNo = a.Reg_no,
+
+                            StudentName = JoinName(
+                                a.FirstName,
+                                null,
+                                a.LastName),
+
+                            SubmittedAt = a.application_date,
+
+                            Steps = steps
+                                .Where(s =>
+                                    s.application_id == a.application_id)
+                                .Select(s => new StepStatusResponse
+                                {
+                                    Department = s.Department,
+                                    Decision = s.Decision,
+                                    RejectionReason = s.rejection_reason,
+                                    ActionAt = s.action_date
+                                })
+                                .ToList()
+                        };
+                    })
+                    .ToList();
 
                 return Success(result);
             }
@@ -134,68 +231,97 @@ namespace DCSBackend.Controllers
             }
         }
 
-        // Approve: works only if the application is at this department's step.
-        // Then it moves to the next department (after Supervisor -> Completed).
+        // -----------------------------------------
+        // APPROVE APPLICATION
+        // -----------------------------------------
+
+        // Each department approves its own record independently
         protected HttpResponseMessage ApproveStep(
-            int userId, int applicationId, string roleName, bool isForce = false)
+            int userId,
+            int applicationId,
+            string roleName,
+            bool isForce = false)
         {
             try
             {
                 if (!HasRole(userId, roleName))
                     return NotAllowed();
 
-                // workflow order comes from Roles.WorkflowOrder
-                var steps = db.Roles
-                    .Where(r => r.WorkflowOrder != null)
-                    .OrderBy(r => r.WorkflowOrder)
-                    .ToList();
+                var role = db.tbl_User_Roles
+                    .FirstOrDefault(r =>
+                        r.role_name == roleName);
 
-                var myStep = steps.First(r => r.RoleName == roleName);
-                var nextStep = steps.FirstOrDefault(r => r.WorkflowOrder > myStep.WorkflowOrder);   // null after Supervisor
+                if (role == null)
+                    return NotFoundMessage(
+                        "Department role not found.");
 
                 using (var tx = db.Database.BeginTransaction())
                 {
-                    // guard: only succeeds if it is really this department's turn
-                    int changed = db.Database.ExecuteSqlCommand(
-                        @"UPDATE ClearanceApprovals
-                          SET Decision = 'Approved', ActionByUserId = {0}, ActionAt = SYSDATETIME()
-                          WHERE ApplicationId = {1} AND DepartmentRoleId = {2} AND Decision = 'Pending'
-                            AND EXISTS (SELECT 1 FROM ClearanceApplications a
-                                        WHERE a.ApplicationId = {1} AND a.Status = 'InProgress'
-                                          AND a.CurrentStepRoleId = {2})",
-                        userId, applicationId, myStep.RoleId);
+                    var application = db.Clearance_Application
+                        .FirstOrDefault(a =>
+                            a.application_id == applicationId);
 
-                    if (changed == 0)
-                        return Fail("This application is not waiting for your approval.");   // tx rolls back
+                    if (application == null)
+                        return NotFoundMessage(
+                            "Application not found.");
 
-                    if (nextStep == null)
+                    // Completed or fully rejected applications
+                    // cannot receive new department decisions.
+                    if (application.application_status != "Pending")
                     {
-                        db.Database.ExecuteSqlCommand(
-                            @"UPDATE ClearanceApplications
-                              SET Status = 'Completed', CurrentStepRoleId = NULL
-                              WHERE ApplicationId = {0}", applicationId);
-                    }
-                    else
-                    {
-                        db.Database.ExecuteSqlCommand(
-                            @"UPDATE ClearanceApplications SET CurrentStepRoleId = {1}
-                              WHERE ApplicationId = {0}", applicationId, nextStep.RoleId);
+                        return Fail(
+                            "This application is not available for approval.");
                     }
 
-                    db.ApplicationHistories.Add(new ApplicationHistory
+                    // Find only this department's pending approval
+                    var approval = db.Clearance_Approvals
+                        .FirstOrDefault(p =>
+                            p.application_id == applicationId &&
+                            p.role_id == role.role_id &&
+                            p.approval_status == "Pending");
+
+                    if (approval == null)
                     {
-                        ApplicationId = applicationId,
-                        ActionByUserId = userId,
-                        DepartmentRoleId = myStep.RoleId,
-                        ActionType = isForce ? "ForceApproved" : "Approved",
-                        CreatedAt = DateTime.Now
-                    });
+                        return Fail(
+                            "This application is not waiting for your approval.");
+                    }
+
+                    DateTime now = DateTime.Now;
+
+                    approval.approval_status = "Approved";
+                    approval.action_by = userId;
+                    approval.action_date = now;
+                    approval.rejection_reason = null;
+
+                    // Save history
+                    db.Clearance_Approval_History.Add(
+                        new Clearance_Approval_History
+                        {
+                            approval_id = approval.approval_id,
+                            previous_status = "Pending",
+                            new_status = "Approved",
+                            remarks = isForce
+                                ? "Force approved"
+                                : "Approved",
+                            action_by = userId,
+                            action_date = now
+                        });
+
+                    db.SaveChanges();
+
+                    // Recalculate overall application status
+                    UpdateApplicationStatus(application);
+
                     db.SaveChanges();
 
                     tx.Commit();
                 }
 
-                return Success(new { approved = true, message = "Application approved." });
+                return Success(new
+                {
+                    approved = true,
+                    message = "Application approved."
+                });
             }
             catch (Exception ex)
             {
@@ -203,73 +329,123 @@ namespace DCSBackend.Controllers
             }
         }
 
-        // Reject: reason is mandatory. Application stays with this department
-        // (Status = Rejected) until the student resubmits it.
+        // -----------------------------------------
+        // REJECT APPLICATION
+        // -----------------------------------------
+
+        // Each department rejects its own record independently
         protected HttpResponseMessage RejectStep(
-            int userId, int applicationId, string roleName, string reason)
+            int userId,
+            int applicationId,
+            string roleName,
+            string reason)
         {
             try
             {
                 reason = (reason ?? "").Trim();
-                if (reason == "")
-                    return Fail("Rejection reason is required.");
+
+                if (string.IsNullOrWhiteSpace(reason))
+                    return Fail(
+                        "Rejection reason is required.");
+
                 if (reason.Length > 1000)
-                    return Fail("Rejection reason is too long (max 1000 characters).");
+                    return Fail(
+                        "Rejection reason is too long (max 1000 characters).");
 
                 if (!HasRole(userId, roleName))
                     return NotAllowed();
 
-                var myRole = db.Roles.First(r => r.RoleName == roleName);
+                var role = db.tbl_User_Roles
+                    .FirstOrDefault(r =>
+                        r.role_name == roleName);
+
+                if (role == null)
+                    return NotFoundMessage(
+                        "Department role not found.");
 
                 using (var tx = db.Database.BeginTransaction())
                 {
-                    int changed = db.Database.ExecuteSqlCommand(
-                        @"UPDATE ClearanceApprovals
-                          SET Decision = 'Rejected', RejectionReason = {0},
-                              ActionByUserId = {1}, ActionAt = SYSDATETIME()
-                          WHERE ApplicationId = {2} AND DepartmentRoleId = {3} AND Decision = 'Pending'
-                            AND EXISTS (SELECT 1 FROM ClearanceApplications a
-                                        WHERE a.ApplicationId = {2} AND a.Status = 'InProgress'
-                                          AND a.CurrentStepRoleId = {3})",
-                        reason, userId, applicationId, myRole.RoleId);
+                    var application = db.Clearance_Application
+                        .FirstOrDefault(a =>
+                            a.application_id == applicationId);
 
-                    if (changed == 0)
-                        return Fail("This application is not waiting for your decision.");   // tx rolls back
+                    if (application == null)
+                        return NotFoundMessage(
+                            "Application not found.");
 
-                    // CurrentStepRoleId is NOT changed: it stays on the rejecting department
-                    db.Database.ExecuteSqlCommand(
-                        @"UPDATE ClearanceApplications SET Status = 'Rejected'
-                          WHERE ApplicationId = {0}", applicationId);
-
-                    db.ApplicationHistories.Add(new ApplicationHistory
+                    if (application.application_status != "Pending")
                     {
-                        ApplicationId = applicationId,
-                        ActionByUserId = userId,
-                        DepartmentRoleId = myRole.RoleId,
-                        ActionType = "Rejected",
-                        Notes = reason,
-                        CreatedAt = DateTime.Now
-                    });
+                        return Fail(
+                            "This application is not available for rejection.");
+                    }
+
+                    // Find only this department's pending approval
+                    var approval = db.Clearance_Approvals
+                        .FirstOrDefault(p =>
+                            p.application_id == applicationId &&
+                            p.role_id == role.role_id &&
+                            p.approval_status == "Pending");
+
+                    if (approval == null)
+                    {
+                        return Fail(
+                            "This application is not waiting for your decision.");
+                    }
+
+                    DateTime now = DateTime.Now;
+
+                    approval.approval_status = "Rejected";
+                    approval.rejection_reason = reason;
+                    approval.action_by = userId;
+                    approval.action_date = now;
+
+                    // Save rejection history
+                    db.Clearance_Approval_History.Add(
+                        new Clearance_Approval_History
+                        {
+                            approval_id = approval.approval_id,
+                            previous_status = "Pending",
+                            new_status = "Rejected",
+                            remarks = reason,
+                            action_by = userId,
+                            action_date = now
+                        });
+
+                    db.SaveChanges();
+
+                    // Important:
+                    // Other departments remain Pending and can
+                    // still approve or reject their own records.
+                    UpdateApplicationStatus(application);
+
                     db.SaveChanges();
 
                     tx.Commit();
                 }
 
-                return Success(new { rejected = true, message = "Application rejected." });
+                return Success(new
+                {
+                    rejected = true,
+                    message = "Application rejected."
+                });
             }
             catch (Exception ex)
             {
                 return ServerError(ex);
             }
         }
+
+        // -----------------------------------------
+        // DISPOSE DATABASE
+        // -----------------------------------------
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
                 db.Dispose();
-                uniDb.Dispose();
             }
+
             base.Dispose(disposing);
         }
     }

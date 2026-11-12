@@ -1,7 +1,7 @@
-﻿using DCSBackend.Model;
-using DCSBackend.Models;   // change "DCSApi" to your project's name
+﻿
+using DCSBackend.Model;
+using DCSBackend.Models;
 using System;
-using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,42 +12,53 @@ namespace DCSBackend.Controllers
     [RoutePrefix("api/auth")]
     public class AuthController : BaseController
     {
-        // POST api/auth/login   body: { "username": "...", "password": "..." }
-        // The frontend keeps the returned userId and sends it with every request.
+   
+
         [HttpPost, Route("login")]
         public HttpResponseMessage Login(LoginRequest request)
         {
             try
             {
-                if (request == null || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrEmpty(request.Password))
+                if (request == null ||
+                    string.IsNullOrWhiteSpace(request.Username) ||
+                    string.IsNullOrEmpty(request.Password))
+                {
                     return Fail("Username and password are required.");
+                }
 
                 string username = request.Username.Trim();
 
-                var user = db.Users
+                var user = db.UserLogins
                     .Where(u => u.Username == username && u.IsActive)
                     .Select(u => new
                     {
-                        u.UserId,
+                        u.LoginId,
                         u.PasswordHash,
-                        u.FullName,
-                        u.RegNo,
-                        RoleName = u.Role.RoleName
+                        u.FirstName,
+                        u.LastName,
+                        u.Reg_no,
+                        RoleName = u.tbl_User_Roles.role_name
                     })
                     .FirstOrDefault();
 
-                // DEV: passwords are plain text in the PasswordHash column.
-                // LATER (when you hash them): replace this comparison with a hash check.
+                // DEV: Passwords are currently stored as plain text.
+                // Replace this comparison when password hashing is implemented.
+
                 if (user == null || user.PasswordHash != request.Password)
-                    return Request.CreateResponse(HttpStatusCode.Unauthorized,
-                        new { message = "Invalid username or password." });
+                {
+                    return Request.CreateResponse(
+                        HttpStatusCode.Unauthorized,
+                        new { message = "Invalid username or password." }
+                    );
+                }
 
                 var response = new LoginResponse
                 {
-                    UserId = user.UserId,
+                    UserId = user.LoginId,
                     Role = user.RoleName,
-                    FullName = user.FullName,
-                    RegNo = user.RegNo
+                    FullName = user.FirstName ,
+                    //+ user.LastName,
+                    RegNo = user.Reg_no
                 };
 
                 return Success(response);
@@ -56,6 +67,13 @@ namespace DCSBackend.Controllers
             {
                 return ServerError(ex);
             }
+        }
+
+        // GET api/auth/ping
+        [HttpGet, Route("ping")]
+        public HttpResponseMessage Ping()
+        {
+            return Request.CreateResponse(HttpStatusCode.OK, "alive");
         }
     }
 }

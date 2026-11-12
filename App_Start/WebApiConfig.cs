@@ -1,7 +1,9 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace DCSBackend
 {
@@ -9,7 +11,9 @@ namespace DCSBackend
     {
         public static void Register(HttpConfiguration config)
         {
-            // Web API configuration and services
+            // Enable CORS for local development
+            var cors = new EnableCorsAttribute("*", "*", "*");
+            config.EnableCors(cors);
 
             // Web API routes
             config.MapHttpAttributeRoutes();
@@ -20,6 +24,7 @@ namespace DCSBackend
                 defaults: new { id = RouteParameter.Optional }
             );
 
+            // CamelCase JSON configuration
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver =
                 new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
         }

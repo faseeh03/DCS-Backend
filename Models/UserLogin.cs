@@ -12,31 +12,32 @@ namespace DCSBackend.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class User
+    public partial class UserLogin
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public User()
+        public UserLogin()
         {
-            this.ApplicationHistories = new HashSet<ApplicationHistory>();
-            this.ClearanceApplications = new HashSet<ClearanceApplication>();
-            this.ClearanceApprovals = new HashSet<ClearanceApproval>();
+            this.Clearance_Application = new HashSet<Clearance_Application>();
+            this.Clearance_Approval_History = new HashSet<Clearance_Approval_History>();
+            this.Clearance_Approvals = new HashSet<Clearance_Approvals>();
         }
     
-        public int UserId { get; set; }
+        public int LoginId { get; set; }
         public string Username { get; set; }
         public string PasswordHash { get; set; }
-        public string FullName { get; set; }
-        public string RegNo { get; set; }
         public int RoleId { get; set; }
         public bool IsActive { get; set; }
         public System.DateTime CreatedAt { get; set; }
+        public string Reg_no { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ApplicationHistory> ApplicationHistories { get; set; }
+        public virtual ICollection<Clearance_Application> Clearance_Application { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ClearanceApplication> ClearanceApplications { get; set; }
+        public virtual ICollection<Clearance_Approval_History> Clearance_Approval_History { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ClearanceApproval> ClearanceApprovals { get; set; }
-        public virtual Role Role { get; set; }
+        public virtual ICollection<Clearance_Approvals> Clearance_Approvals { get; set; }
+        public virtual tbl_User_Roles tbl_User_Roles { get; set; }
     }
 }

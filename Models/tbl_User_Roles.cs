@@ -12,26 +12,21 @@ namespace DCSBackend.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class ClearanceApplication
+    public partial class tbl_User_Roles
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public ClearanceApplication()
+        public tbl_User_Roles()
         {
-            this.ApplicationHistories = new HashSet<ApplicationHistory>();
-            this.ClearanceApprovals = new HashSet<ClearanceApproval>();
+            this.Clearance_Approvals = new HashSet<Clearance_Approvals>();
+            this.UserLogins = new HashSet<UserLogin>();
         }
     
-        public int ApplicationId { get; set; }
-        public int StudentUserId { get; set; }
-        public System.DateTime SubmittedAt { get; set; }
-        public string Status { get; set; }
-        public Nullable<int> CurrentStepRoleId { get; set; }
+        public int role_id { get; set; }
+        public string role_name { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ApplicationHistory> ApplicationHistories { get; set; }
-        public virtual Role Role { get; set; }
-        public virtual User User { get; set; }
+        public virtual ICollection<Clearance_Approvals> Clearance_Approvals { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ClearanceApproval> ClearanceApprovals { get; set; }
+        public virtual ICollection<UserLogin> UserLogins { get; set; }
     }
 }

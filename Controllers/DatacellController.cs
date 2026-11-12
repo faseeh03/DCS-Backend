@@ -1,37 +1,26 @@
-﻿using DCSBackend.Model;
-using DCSBackend.Models;   // change "DCSApi" to your project's name
+﻿
+using DCSBackend.Model;
+using DCSBackend.Models;
 using System;
-using System.Data.Entity;
-using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.UI.WebControls;
 
 namespace DCSBackend.Controllers
 {
-    /// <summary>
-    /// Datacell: pending list, view (CGPA + courses), approve, reject.
-    /// Datacell's decision is final: if the university data says "not eligible",
-    /// Approve first returns a warning; calling it again with ?force=true approves anyway.
-    /// </summary>
     [RoutePrefix("api/datacell")]
     public class DatacellController : BaseController
     {
         private const string RoleName = "Datacell";
 
-        // ---- rules (change here) ----
-        private const decimal MinCgpa = 2.5m;                          // CGPA must be >= 2.5
-        private static readonly string[] FailGrades = { "F" };         // add "I", "W" ... if needed
-
-        // GET api/datacell/pending/3
+        // GET api/datacell/pending/{userId}
         [HttpGet, Route("pending/{userId:int}")]
         public HttpResponseMessage Pending(int userId)
         {
             return PendingList(userId, RoleName);
         }
 
-        // GET api/datacell/view/3/12   ->  student info + CGPA + courses
+        // GET api/datacell/view/{userId}/{applicationId}
         [HttpGet, Route("view/{userId:int}/{applicationId:int}")]
         public HttpResponseMessage View(int userId, int applicationId)
         {
@@ -40,25 +29,53 @@ namespace DCSBackend.Controllers
                 if (!HasRole(userId, RoleName))
                     return NotAllowed();
 
-                var app = GetApplication(applicationId);
+                var app = db.Clearance_Application
+                    .Where(a => a.application_id == applicationId)
+                    .Select(a => new
+                    {
+                        a.application_id,
+                        a.application_status,
+                        a.application_date,
+                        a.UserLogin.Reg_no,
+                        a.UserLogin.FirstName,
+                        a.UserLogin.LastName
+                    })
+                    .FirstOrDefault();
+
                 if (app == null)
                     return NotFoundMessage("Application not found.");
 
-                var student = uniDb.STMTRs
-                    .Where(s => s.Reg_No == app.RegNo)
-                    .Select(s => new { s.St_firstname, s.St_middlename, s.St_lastname, s.Final_course })
+                var student = db.STMTRs
+                    .Where(s => s.Reg_No == app.Reg_no)
+                    .Select(s => new
+                    {
+                        s.St_firstname,
+                        s.St_middlename,
+                        s.St_lastname,
+                        s.Final_course
+                    })
                     .FirstOrDefault();
 
-                var response = new DatacellViewResponse
+                var response = new
                 {
-                    ApplicationId = app.ApplicationId,
-                    Status = app.Status,
-                    SubmittedAt = app.SubmittedAt,
-                    RegNo = app.RegNo,
-                    FullName = student == null ? app.FullName
-                               : JoinName(student.St_firstname, student.St_middlename, student.St_lastname),
-                    Degree = student == null ? null : student.Final_course,
-                    Eligibility = CheckEligibility(app.RegNo)
+                    ApplicationId = app.application_id,
+                    Status = app.application_status,
+                    SubmittedAt = app.application_date,
+                    RegNo = app.Reg_no,
+
+                    FullName = student == null
+                        ? JoinName(app.FirstName, null, app.LastName)
+                        : JoinName(
+                            student.St_firstname,
+                            student.St_middlename,
+                            student.St_lastname
+                        ),
+
+                    Degree = student == null
+                        ? null
+                        : student.Final_course,
+
+                    Eligibility = "Okay"
                 };
 
                 return Success(response);
@@ -69,39 +86,53 @@ namespace DCSBackend.Controllers
             }
         }
 
-        // POST api/datacell/approve/3/12            -> approves if eligible, otherwise warning
-        // POST api/datacell/approve/3/12?force=true -> approves even if not eligible
+        // POST api/datacell/approve/{userId}/{applicationId}
         [HttpPost, Route("approve/{userId:int}/{applicationId:int}")]
-        public HttpResponseMessage Approve(int userId, int applicationId, bool force = false)
+        public HttpResponseMessage Approve(
+            int userId,
+            int applicationId)
         {
             try
             {
                 if (!HasRole(userId, RoleName))
                     return NotAllowed();
 
-                var app = GetApplication(applicationId);
+                var app = db.Clearance_Application
+                    .FirstOrDefault(a =>
+                        a.application_id == applicationId);
+
                 if (app == null)
                     return NotFoundMessage("Application not found.");
 
-                var check = CheckEligibility(app.RegNo);
+                // Check Datacell's pending approval
+                var role = db.tbl_User_Roles
+                    .FirstOrDefault(r =>
+                        r.role_name == RoleName);
 
-                if (!check.IsEligible && !force)
+                if (role == null)
+                    return Fail("Datacell role was not found.");
+
+                bool hasPendingApproval = db.Clearance_Approvals
+                    .Any(a =>
+                        a.application_id == applicationId &&
+                        a.role_id == role.role_id &&
+                        a.approval_status == "Pending");
+
+                if (app.application_status != "Pending" ||
+                    !hasPendingApproval)
                 {
-                    // nothing is saved; frontend shows a popup and may call again with force=true
-                    return Success(new
-                    {
-                        approved = false,
-                        needsConfirmation = true,
-                        message = "Student does not meet the requirements. Force approve?",
-                        cgpa = check.Cgpa,
-                        minCgpa = check.MinCgpa,
-                        problems = check.Problems
-                    });
+                    return Fail(
+                        "This application is no longer pending for Datacell."
+                    );
                 }
 
-                // history shows "ForceApproved" only when we really overrode a failed check
-                bool wasOverridden = force && !check.IsEligible;
-                return ApproveStep(userId, applicationId, RoleName, wasOverridden);
+                // Datacell only approves its own department.
+                // Student eligibility is checked before application submission.
+                return ApproveStep(
+                    userId,
+                    applicationId,
+                    RoleName
+                );
             }
             catch (Exception ex)
             {
@@ -109,111 +140,20 @@ namespace DCSBackend.Controllers
             }
         }
 
-        // POST api/datacell/reject/3/12     body: { "reason": "..." }
+        // POST api/datacell/reject/{userId}/{applicationId}
+        // Body: { "reason": "..." }
         [HttpPost, Route("reject/{userId:int}/{applicationId:int}")]
-        public HttpResponseMessage Reject(int userId, int applicationId, RejectRequest request)
+        public HttpResponseMessage Reject(
+            int userId,
+            int applicationId,
+            RejectRequest request)
         {
-            return RejectStep(userId, applicationId, RoleName,
-                request == null ? null : request.Reason);
-        }
-
-        // ------------------------------------------------------------
-        // Helpers
-        // ------------------------------------------------------------
-        private class ApplicationInfo
-        {
-            public int ApplicationId { get; set; }
-            public string Status { get; set; }
-            public DateTime SubmittedAt { get; set; }
-            public string RegNo { get; set; }
-            public string FullName { get; set; }
-        }
-
-        private ApplicationInfo GetApplication(int applicationId)
-        {
-            return db.ClearanceApplications
-                .Where(a => a.ApplicationId == applicationId)
-                .Select(a => new ApplicationInfo
-                {
-                    ApplicationId = a.ApplicationId,
-                    Status = a.Status,
-                    SubmittedAt = a.SubmittedAt,
-                    RegNo = a.User.RegNo,
-                    FullName = a.User.FullName
-                })
-                .FirstOrDefault();
-        }
-
-        // Reads CGPA (8th semester) and courses from the university DB
-        private EligibilityResponse CheckEligibility(string regNo)
-        {
-            // CGPA: only the 8th semester row
-            // (if SemC is a string column in your DB, write  a.SemC == "8")
-            var cgpaRow = uniDb.Accgpas
-                .Where(a => a.REG_NO == regNo && a.SemC == 8)
-                .Select(a => new { a.CGPA })
-                .FirstOrDefault();
-
-            decimal? cgpa = cgpaRow == null ? null : ToDecimal(cgpaRow.CGPA);
-
-            // Courses: a course counts as passed if ANY attempt passed (retakes)
-            var attempts = uniDb.Crsdtls
-                .Where(c => c.REG_NO == regNo)
-                .Select(c => new { c.Course_no, c.Grade })
-                .ToList();
-
-            var courses = attempts
-                .GroupBy(a => Convert.ToString(a.Course_no))
-                .Select(g =>
-                {
-                    var best = g.FirstOrDefault(x => IsPassingGrade(Convert.ToString(x.Grade))) ?? g.First();
-                    return new CourseResult
-                    {
-                        CourseNo = g.Key,
-                        Grade = (Convert.ToString(best.Grade) ?? "").Trim(),
-                        IsPassed = g.Any(x => IsPassingGrade(Convert.ToString(x.Grade)))
-                    };
-                })
-                .OrderBy(c => c.IsPassed)          // problems first
-                .ThenBy(c => c.CourseNo)
-                .ToList();
-
-            var result = new EligibilityResponse { MinCgpa = MinCgpa, Cgpa = cgpa, Courses = courses };
-            result.CgpaOk = cgpa.HasValue && cgpa.Value >= MinCgpa;
-            result.CourseCount = courses.Count;
-            result.NotPassedCount = courses.Count(c => !c.IsPassed);
-            result.CoursesOk = courses.Count > 0 && result.NotPassedCount == 0;
-            result.IsEligible = result.CgpaOk && result.CoursesOk;
-
-            if (!cgpa.HasValue)
-                result.Problems.Add("No 8th semester CGPA record found.");
-            else if (!result.CgpaOk)
-                result.Problems.Add("CGPA is " + cgpa.Value.ToString("0.00") + " (minimum " + MinCgpa.ToString("0.00") + ").");
-
-            if (courses.Count == 0)
-                result.Problems.Add("No course records found.");
-            else if (result.NotPassedCount > 0)
-                result.Problems.Add(result.NotPassedCount + " course(s) not passed: "
-                    + string.Join(", ", courses.Where(c => !c.IsPassed).Select(c => c.CourseNo)) + ".");
-
-            return result;
-        }
-
-        // empty grade = not graded yet = not passed
-        private static bool IsPassingGrade(string grade)
-        {
-            string g = (grade ?? "").Trim().ToUpper();
-            return g != "" && !FailGrades.Contains(g);
-        }
-
-        // works whether the CGPA column is decimal, float or text
-        private static decimal? ToDecimal(object value)
-        {
-            if (value == null) return null;
-            decimal d;
-            string text = Convert.ToString(value, CultureInfo.InvariantCulture);
-            return decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out d)
-                ? (decimal?)d : null;
+            return RejectStep(
+                userId,
+                applicationId,
+                RoleName,
+                request == null ? null : request.Reason
+            );
         }
     }
 }

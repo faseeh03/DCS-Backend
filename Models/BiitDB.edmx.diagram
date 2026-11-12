@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="516dc60804894391b4e4c82625b09057" Name="Diagram1">
+        <EntityTypeShape EntityType="BIITDBNewModel.Accgpa" Width="1.5" PointX="8" PointY="14.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.Clearance_Application" Width="1.5" PointX="5.25" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.Clearance_Approval_History" Width="1.5" PointX="9.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.Clearance_Approvals" Width="1.5" PointX="7.5" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.course" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.Crsdtl" Width="1.5" PointX="11" PointY="13.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.crsdtl_enrl" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.CRSMTR" Width="1.5" PointX="8.75" PointY="19.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.STMTR" Width="1.5" PointX="5.75" PointY="12.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.tbl_User_Roles" Width="1.5" PointX="0.75" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.UserLogin" Width="1.5" PointX="3" PointY="7" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.CrsEnrF" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.CrsEnrp" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="BIITDBNewModel.CrsFail" Width="1.5" PointX="8.75" PointY="0.75" IsExpanded="true" />
+        <AssociationConnector Association="BIITDBNewModel.fk1_reg_no" ManuallyRouted="false" />
+        <AssociationConnector Association="BIITDBNewModel.FK_ClearanceApplication_UserLogin" ManuallyRouted="false" />
+        <AssociationConnector Association="BIITDBNewModel.FK_ClearanceApprovals_Application" ManuallyRouted="false" />
+        <AssociationConnector Association="BIITDBNewModel.FK_ApprovalHistory_Approvals" ManuallyRouted="false" />
+        <AssociationConnector Association="BIITDBNewModel.FK_ApprovalHistory_UserLogin" ManuallyRouted="false" />
+        <AssociationConnector Association="BIITDBNewModel.FK_ClearanceApprovals_Roles" ManuallyRouted="false" />
+        <AssociationConnector Association="BIITDBNewModel.FK_ClearanceApprovals_UserLogin" ManuallyRouted="false" />
+        <AssociationConnector Association="BIITDBNewModel.FK_DISCRS" ManuallyRouted="false" />
+        <AssociationConnector Association="BIITDBNewModel.fk_reg" ManuallyRouted="false" />
+        <AssociationConnector Association="BIITDBNewModel.FK_UserLogin_Roles" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

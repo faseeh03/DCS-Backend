@@ -16,7 +16,8 @@
     <AssemblyName>DCSBackend</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
-    <Use64BitIISExpress />
+    <Use64BitIISExpress>
+    </Use64BitIISExpress>
     <IISExpressSSLPort>44351</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -75,6 +76,9 @@
     <Reference Include="Microsoft.IdentityModel.Tokens, Version=8.23.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.IdentityModel.Tokens.8.23.0\lib\net472\Microsoft.IdentityModel.Tokens.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json.Bson, Version=1.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.Bson.1.0.2\lib\net45\Newtonsoft.Json.Bson.dll</HintPath>
+    </Reference>
     <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
     </Reference>
@@ -91,6 +95,9 @@
       <HintPath>packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.WebApi.Client.6.0.0\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
@@ -109,6 +116,9 @@
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web.Cors, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.Cors.5.3.0\lib\net45\System.Web.Cors.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -118,6 +128,15 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Http, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.WebApi.Core.5.3.0\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.Cors, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.WebApi.Cors.5.3.0\lib\net45\System.Web.Http.Cors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.WebApi.WebHost.5.3.0\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
@@ -130,40 +149,21 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="System.Net.Http.Formatting">
-      <HintPath>packages\Microsoft.AspNet.WebApi.Client.5.2.9\lib\net45\System.Net.Http.Formatting.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Http">
-      <HintPath>packages\Microsoft.AspNet.WebApi.Core.5.2.9\lib\net45\System.Web.Http.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Http.WebHost">
-      <HintPath>packages\Microsoft.AspNet.WebApi.WebHost.5.2.9\lib\net45\System.Web.Http.WebHost.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
       <HintPath>packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
-    <Content Include="Models\BIITDBModel.Context.tt">
+    <Content Include="Models\BiitDB.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>BIITDBModel.edmx</DependentUpon>
-      <LastGenOutput>BIITDBModel.Context.cs</LastGenOutput>
+      <DependentUpon>BiitDB.edmx</DependentUpon>
+      <LastGenOutput>BiitDB.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="Models\BIITDBModel.tt">
+    <Content Include="Models\BiitDB.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>BIITDBModel.edmx</DependentUpon>
-      <LastGenOutput>BIITDBModel.cs</LastGenOutput>
-    </Content>
-    <Content Include="Models\DCSModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>DCSModel.edmx</DependentUpon>
-      <LastGenOutput>DCSModel.Context.cs</LastGenOutput>
-    </Content>
-    <Content Include="Models\DCSModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>DCSModel.edmx</DependentUpon>
-      <LastGenOutput>DCSModel.cs</LastGenOutput>
+      <DependentUpon>BiitDB.edmx</DependentUpon>
+      <LastGenOutput>BiitDB.cs</LastGenOutput>
     </Content>
     <Content Include="Web.config" />
   </ItemGroup>
@@ -182,58 +182,61 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Accgpa.cs">
-      <DependentUpon>BIITDBModel.tt</DependentUpon>
+      <DependentUpon>BiitDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\ApplicationHistory.cs">
-      <DependentUpon>DCSModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\BIITDBModel.Context.cs">
+    <Compile Include="Models\BiitDB.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>BIITDBModel.Context.tt</DependentUpon>
+      <DependentUpon>BiitDB.Context.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\BIITDBModel.cs">
+    <Compile Include="Models\BiitDB.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>BIITDBModel.tt</DependentUpon>
+      <DependentUpon>BiitDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\BIITDBModel.Designer.cs">
+    <Compile Include="Models\BiitDB.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>BIITDBModel.edmx</DependentUpon>
+      <DependentUpon>BiitDB.edmx</DependentUpon>
     </Compile>
-    <Compile Include="Models\ClearanceApplication.cs">
-      <DependentUpon>DCSModel.tt</DependentUpon>
+    <Compile Include="Models\Clearance_Application.cs">
+      <DependentUpon>BiitDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\ClearanceApproval.cs">
-      <DependentUpon>DCSModel.tt</DependentUpon>
+    <Compile Include="Models\Clearance_Approvals.cs">
+      <DependentUpon>BiitDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Clearance_Approval_History.cs">
+      <DependentUpon>BiitDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\course.cs">
+      <DependentUpon>BiitDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Crsdtl.cs">
-      <DependentUpon>BIITDBModel.tt</DependentUpon>
+      <DependentUpon>BiitDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\DCSModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>DCSModel.Context.tt</DependentUpon>
+    <Compile Include="Models\crsdtl_enrl.cs">
+      <DependentUpon>BiitDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\DCSModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>DCSModel.tt</DependentUpon>
+    <Compile Include="Models\CrsEnrF.cs">
+      <DependentUpon>BiitDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\DCSModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>DCSModel.edmx</DependentUpon>
+    <Compile Include="Models\CrsEnrp.cs">
+      <DependentUpon>BiitDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\Role.cs">
-      <DependentUpon>DCSModel.tt</DependentUpon>
+    <Compile Include="Models\CrsFail.cs">
+      <DependentUpon>BiitDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CRSMTR.cs">
+      <DependentUpon>BiitDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\STMTR.cs">
-      <DependentUpon>BIITDBModel.tt</DependentUpon>
+      <DependentUpon>BiitDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\User.cs">
-      <DependentUpon>DCSModel.tt</DependentUpon>
+    <Compile Include="Models\tbl_User_Roles.cs">
+      <DependentUpon>BiitDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\UserLogin.cs">
+      <DependentUpon>BiitDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Model\Authmodel.cs" />
     <Compile Include="Model\DatacellModel.cs" />
@@ -242,19 +245,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EntityDeploy Include="Models\DCSModel.edmx">
+    <EntityDeploy Include="Models\BiitDB.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>DCSModel.Designer.cs</LastGenOutput>
+      <LastGenOutput>BiitDB.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <Content Include="Models\DCSModel.edmx.diagram">
-      <DependentUpon>DCSModel.edmx</DependentUpon>
-    </Content>
-    <EntityDeploy Include="Models\BIITDBModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>BIITDBModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="Models\BIITDBModel.edmx.diagram">
-      <DependentUpon>BIITDBModel.edmx</DependentUpon>
+    <Content Include="Models\BiitDB.edmx.diagram">
+      <DependentUpon>BiitDB.edmx</DependentUpon>
     </Content>
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
@@ -285,7 +281,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>57510</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>https://localhost:44351/</IISUrl>
+          <IISUrl>http://localhost:44351/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
